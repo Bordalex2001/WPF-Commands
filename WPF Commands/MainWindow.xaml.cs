@@ -1,6 +1,8 @@
-﻿using PromptDialog;
+﻿using Microsoft.Win32;
+using PromptDialog;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,6 +23,8 @@ namespace WPF_Commands
     /// </summary>
     public partial class MainWindow : Window
     {
+        private KeyDialog.LicenseType currentLicense;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -55,43 +59,45 @@ namespace WPF_Commands
             KeyDialog dialog = new KeyDialog();
             if (dialog.ShowDialog() == true)
             {
-                KeyDialog.LicenseType licenseType = dialog.SelectedLicenseType;
-
-                switch (licenseType)
+                currentLicense = dialog.SelectedLicenseType;
+                //KeyDialog.LicenseType licenseType = dialog.SelectedLicenseType;
+                switch (currentLicense)
                 {
                     case KeyDialog.LicenseType.Free:
-                        // Без ключа и регистрации: доступ только к Exit
+                        // Без ключа и регистрации: доступ только к редактору
                         // Настроить меню соответственно
-                        DisableAllMenuItemsExceptExit();
+                        EnableOnlyWrite();
                         break;
 
                     case KeyDialog.LicenseType.Trial:
                         // Trial версия: доступ к функциям из меню File (New, Open, Save, Exit)
                         // Настроить меню соответственно
-                        DisableEditMenuItems();
+                        EnableFileFeatures();
                         break;
 
                     case KeyDialog.LicenseType.Pro:
                         // Pro версия: доступ ко всем функциям из меню File и Edit
                         // Настроить меню соответственно
-                        EnableAllMenuItems();
+                        EnableAllFeatures();
                         break;
                 }
             }
             else
             {
-                // Если диалог был закрыт без ввода ключа, по умолчанию предоставить доступ только к Exit
-                DisableAllMenuItemsExceptExit();
+                // Если диалог был закрыт без ввода ключа, по умолчанию предоставить доступ только к редактору 
+                EnableOnlyWrite();
             }
         }
 
-        private void DisableAllMenuItemsExceptExit()
+        private void EnableOnlyWrite()
         {
             // Отключить все элементы меню кроме Exit
             foreach (object item in menuFile.Items)
             {
                 if (item is MenuItem menuItem && menuItem.Header.ToString() != "Exit")
-                menuItem.IsEnabled = false;
+                {
+                    menuItem.IsEnabled = false;
+                }
             }
             foreach (MenuItem menuItem in menuEdit.Items)
             {
@@ -99,8 +105,16 @@ namespace WPF_Commands
             }
         }
 
-        private void DisableEditMenuItems()
+        private void EnableFileFeatures()
         {
+            // Отключить все элементы меню кроме Exit
+            foreach (object item in menuFile.Items)
+            {
+                if (item is MenuItem menuItem)
+                {
+                    menuItem.IsEnabled = true;
+                }
+            }
             // Отключить элементы меню из раздела Edit
             foreach (MenuItem menuItem in menuEdit.Items)
             {
@@ -108,12 +122,15 @@ namespace WPF_Commands
             }
         }
 
-        private void EnableAllMenuItems()
+        private void EnableAllFeatures()
         {
             // Включить все элементы меню
-            foreach (MenuItem menuItem in menuFile.Items)
+            foreach (object item in menuFile.Items)
             {
-                menuItem.IsEnabled = true;
+                if (item is MenuItem menuItem)
+                {
+                    menuItem.IsEnabled = true;
+                }
             }
             foreach (MenuItem menuItem in menuEdit.Items)
             {
@@ -121,10 +138,8 @@ namespace WPF_Commands
             }
         }
 
-
         private void Exit_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            isChanged = false;
             Close();
         }
 
@@ -135,7 +150,14 @@ namespace WPF_Commands
 
         private void SaveAs_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            isChanged = false;
+            SaveFileDialog dialog = new SaveFileDialog { Filter = "Text Files | *.txt", DefaultExt = "txt" };
+            bool? success = dialog.ShowDialog();
+            if (success == true)
+            {
+                string path = dialog.FileName;
+                string fileContent = txtEditor.Text;
+                File.WriteAllText(path, fileContent);
+            }
         }
 
         private void Save_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -143,20 +165,22 @@ namespace WPF_Commands
             e.CanExecute = isChanged;
         }
 
-        private void Save_Executed(object sender, ExecutedRoutedEventArgs e)
-        {
-            isChanged = false;
-        }
+        private void Save_Executed(object sender, ExecutedRoutedEventArgs e) {}
 
         private void Open_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             isChanged = false;
+            OpenFileDialog dialog = new OpenFileDialog { Filter = "Text Files | *.txt", DefaultExt = "txt" };
+            bool? success = dialog.ShowDialog();
+            if (success == true)
+            {
+                string path = dialog.FileName;
+                string fileContent = File.ReadAllText(path);
+                txtEditor.Text = fileContent;
+            }
         }
 
-        private void Create_Executed(object sender, ExecutedRoutedEventArgs e)
-        {
-            isChanged = false;
-        }
+        private void Create_Executed(object sender, ExecutedRoutedEventArgs e) {}
 
         private bool isChanged = false;
         private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -166,8 +190,7 @@ namespace WPF_Commands
 
         private void Register_Click(object sender, RoutedEventArgs e)
         {
-            KeyDialog dialog = new KeyDialog();
-            dialog.Show();
+            CheckLicenseType();
         }
     }
 }

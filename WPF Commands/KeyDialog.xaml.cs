@@ -31,13 +31,13 @@ namespace WPF_Commands
         public KeyDialog()
         {
             InitializeComponent();
+            RegisterBtn.IsEnabled = false;
         }
 
         private void RegisterBtn_Click(object sender, RoutedEventArgs e)
         {
             // Здесь можно добавить логику проверки ключа и определения типа лицензии
             // Например, предположим, что ввод "pro" даёт полный доступ, "trial" - ограниченный доступ, иначе - только Exit.
-
             string enteredKey = KeyTxtBox.Text.ToLower();
             if (enteredKey == "pro")
             {
@@ -46,6 +46,11 @@ namespace WPF_Commands
             else if (enteredKey == "trial")
             {
                 SelectedLicenseType = LicenseType.Trial;
+            }
+            else if (enteredKey != "pro" || enteredKey != "trial")
+            {
+                MessageBox.Show("Wrong key!");
+                return;
             }
             else
             {
@@ -58,6 +63,11 @@ namespace WPF_Commands
         private void CancelBtn_Click(object sender, RoutedEventArgs e)
         {
             DialogResult = false;
+        }
+
+        private void KeyTxtBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            RegisterBtn.IsEnabled = KeyTxtBox.Text.Length >= 3;
         }
     }
 }

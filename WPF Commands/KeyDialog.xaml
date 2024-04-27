@@ -5,16 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WPF_Commands"
         mc:Ignorable="d"
-        Height="100" Width="210" ResizeMode="NoResize">
+        Height="110" Width="210" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
     <Grid>
         <StackPanel Orientation="Vertical">
             <StackPanel Orientation="Horizontal">
                 <Label Content="Enter key:"/>
-                <TextBox x:Name="KeyTxtBox" TextWrapping="Wrap" Width="120" Height="20" Margin="10,0,0,0"/>
+                <TextBox x:Name="KeyTxtBox" TextWrapping="Wrap" Width="120" Height="20" Margin="10,0,0,0" TextChanged="KeyTxtBox_TextChanged"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
-                <Button x:Name="RegisterBtn" Content="Register" IsDefault="True" Click="RegisterBtn_Click"/>
-                <Button x:Name="CancelBtn" Content="Cancel" IsCancel="True" Margin="10,0,0,0" Click="CancelBtn_Click"/>
+                <Button x:Name="RegisterBtn" Content="Register" IsDefault="True" Click="RegisterBtn_Click" Width="55" Height="25"/>
+                <Button x:Name="CancelBtn" Content="Cancel" IsCancel="True" Margin="10,0,0,0" Click="CancelBtn_Click" Width="55" Height="25"/>
             </StackPanel>
         </StackPanel>
     </Grid>

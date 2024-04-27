@@ -25,7 +25,7 @@
                 </MenuItem>
                 <MenuItem Header="Register" Click="Register_Click"></MenuItem>
             </Menu>
-            <TextBox Margin="5" AcceptsReturn="True" TextChanged="TextBox_TextChanged"></TextBox>
+            <TextBox x:Name="txtEditor" Margin="5" AcceptsReturn="True" TextChanged="TextBox_TextChanged"></TextBox>
         </DockPanel>
     </Grid>
 </Window>
